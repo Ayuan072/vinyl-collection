@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vinyl Collection</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background:#fafafa; margin:0; padding:20px; color:#111; }
+    .container { max-width:720px; margin:auto; }
+    h1 { font-size:28px; margin-bottom:10px; }
+    h2 { margin-top:30px; font-size:18px; border-bottom:1px solid #ddd; padding-bottom:5px; }
+    .search { position: sticky; top:0; background:#fafafa; padding:10px 0; margin-bottom:10px; }
+    input { width:100%; padding:10px; border:1px solid #ccc; border-radius:10px; }
+    .artist { margin-top:10px; border-bottom:1px solid #eee; padding:10px 0; cursor:pointer; }
+    .artist-name { font-weight:600; display:flex; justify-content:space-between; }
+    .albums { margin-top:8px; max-height:0; overflow:hidden; transition:max-height 0.25s ease; }
+    .artist.open .albums { max-height:800px; }
+    .album { display:flex; align-items:center; gap:10px; margin:6px 0; font-size:14px; color:#444; }
+    .album img { width:42px; height:42px; object-fit:cover; border-radius:6px; box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🎵 Vinyl Collection</h1>
+    <div class="search">
+      <input id="search" placeholder="Search artist..." oninput="render()" />
+    </div>
+    <div id="list"></div>
+  </div>
+
+  <script>
+    const ph = "https://via.placeholder.com/60";
+
+    const data = {
+      "Pop / R&B / Hip-Hop": {
+        "Adele": ["21","25","30"],
+        "The Weeknd": ["House of Balloons","Starboy","My Dear Melancholy,","Dawn FM","Hurry Up Tomorrow"],
+        "Frank Ocean": ["Blonde"],
+        "Daniel Caesar": ["Never Enough"],
+        "Giveon": ["When It’s All Said and Done","Beloved"],
+        "d4vd": ["Petals to Thorns"],
+        "Lucky Daye": ["Algorithm"],
+        "Montell Fish": ["JAMIE"],
+        "Sam Smith": ["The Thrill of It All"],
+        "Shawn Mendes": ["Wonder"],
+        "Post Malone": ["Hollywood’s Bleeding"],
+        "Ed Sheeran": ["="],
+        "RAYE": ["My 21st Century Blues","Nightingale Lane (Test Press)"]
+      },
+
+      "Soul / Jazz / Classic Pop": {
+        "Amy Winehouse": ["Back to Black"],
+        "Bruno Mars": ["Doo-Wops & Hooligans","The Romantic","An Evening with Silk Sonic"],
+        "Mariah Carey": ["Daydream","Butterfly"],
+        "Aretha Franklin": ["Lady Soul","I Never Loved a Man the Way I Love You","This Girl’s in Love with You"],
+        "Al Green": ["Let’s Stay Together"],
+        "Michael Bublé": ["Love"],
+        "Diana Krall": ["The Look of Love","The Very Best of Diana Krall"],
+        "Prince": ["Purple Rain (Single)"],
+        "The Manhattans": ["Black Tie"]
+      },
+
+      "Indie / Alternative": {
+        "Cigarettes After Sex": ["Cry","Cigarettes After Sex","X’s","•"],
+        "Mazzy Star": ["So Tonight That I Might See"]
+      },
+
+      "Chinese": {
+        "蔡琴": ["民歌蔡琴"],
+        "赵传": ["一颗滚石的25年"],
+        "黑豹乐队": ["黑豹"],
+        "马新桦 / 冯丹": ["玫瑰三愿"]
+      },
+
+      "Jazz": {
+        "Stan Getz & João Gilberto": ["Getz/Gilberto"],
+        "Dave Brubeck Quartet": ["Time Out"],
+        "Kenny Burrell": ["Midnight Blue"],
+        "Paul Desmond": ["Easy Living"],
+        "Miles Davis": ["Kind of Blue"],
+        "Ella Fitzgerald & Louis Armstrong": ["Ella and Louis"],
+        "Frank Sinatra": ["A Swingin’ Affair"]
+      },
+
+      "Soundtrack": {
+        "Various": ["A Star Is Born"]
+      },
+
+      "Classical": {
+        "Chopin": [
+          "24 Preludes",
+          "Piano Concerto No.2",
+          "Polonaise Op.44",
+          "Waltzes (Rubinstein)",
+          "Nocturnes Vol.1 & 2",
+          "Nocturnes (Barenboim)"
+        ],
+        "Tchaikovsky": [
+          "Piano Concerto No.1 (multiple versions)",
+          "Ballet Suite No.2"
+        ],
+        "Vivaldi": ["Four Seasons (multiple versions)"],
+        "Beethoven": ["Symphony No.5","Sonatas (Kempff)"],
+        "Debussy / Ravel": ["La Mer"],
+        "Shostakovich": ["Symphony No.6"],
+        "Yo-Yo Ma": ["Six Evolutions"],
+        "Karajan / Berlin Philharmonic": ["Waltz Compilation","Multiple Recordings"],
+        "Vienna Philharmonic": ["New Year Concert","Johann Strauss Collection"],
+        "Terence Judd": ["Live in Moscow 1978"],
+        "Additional Tchaikovsky Recordings": [
+          "Weissenberg / Karajan",
+          "Richter / Wiener Symphony",
+          "Lazar Berman / Berlin Philharmonic"
+        ]
+      }
+    };
+
+    function toggle(el){
+      el.classList.toggle('open');
+      const icon = el.querySelector('span');
+      icon.textContent = el.classList.contains('open') ? '–' : '+';
+    }
+
+    function render(){
+      const q = document.getElementById('search').value.toLowerCase();
+      const root = document.getElementById('list');
+      root.innerHTML='';
+
+      Object.entries(data).forEach(([cat,artists])=>{
+        const sec=document.createElement('div');
+        const h=document.createElement('h2');
+        h.textContent=cat;
+        sec.appendChild(h);
+
+        Object.entries(artists)
+          .filter(([a])=>a.toLowerCase().includes(q))
+          .forEach(([artist,albums])=>{
+            const div=document.createElement('div');
+            div.className='artist';
+            div.onclick=()=>toggle(div);
+
+            const name=document.createElement('div');
+            name.className='artist-name';
+            name.innerHTML=`${artist} <span>+</span>`;
+
+            const list=document.createElement('div');
+            list.className='albums';
+
+            albums.forEach(a=>{
+              const row=document.createElement('div');
+              row.className='album';
+              row.innerHTML=`<img src="${ph}"> ${a}`;
+              list.appendChild(row);
+            });
+
+            div.appendChild(name);
+            div.appendChild(list);
+            sec.appendChild(div);
+          });
+
+        root.appendChild(sec);
+      });
+    }
+
+    render();
+  </script>
+</body>
+</html>
